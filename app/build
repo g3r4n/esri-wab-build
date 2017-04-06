@@ -10,7 +10,6 @@ const prepareScript = require('./prebuild');
 const copyScript = require('./copyapp');
 const process = require('process');
 const execSync = require('child_process').execSync;
-const babylon = require('babylon');
 const zipFolder = require('zip-folder');
 const babylon = require('babylon');
 
