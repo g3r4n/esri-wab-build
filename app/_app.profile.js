@@ -9,15 +9,16 @@ profile = {
   useSourceMaps: false,
   layerOptimize: "closure",
   optimizeOptions: {
-    languageIn: 'ECMASCRIPT6',
-    languageOut: 'ECMASCRIPT5'
+    languageIn: "ECMASCRIPT6",
+    languageOut: "ECMASCRIPT5"
   },
   cssOptimize: "comments",
   copyTests: false,
   internStrings: true,
   mini: true,
 
-  localeList: "ar,cs,da,de,en,el,es,et,fi,fr,he,it,ja,ko,lt,lv,nb,nl,pl,pt-br,pt-pt,ro,ru,sv,th,tr,zh-cn,vi",
+  localeList:
+    "ar,cs,da,de,en,el,es,et,fi,fr,he,it,ja,ko,lt,lv,nb,nl,pl,pt-br,pt-pt,ro,ru,sv,th,tr,zh-cn,vi",
 
   selectorEngine: "acme",
   stripConsole: "none",

@@ -42,11 +42,12 @@
     "zip-folder": "^1.0.0"
   },
   "scripts": {
+    "lint" : "prettier --write app/**/*.js",
     "precommit": "lint-staged"
   },
   "lint-staged": {
     "*.js": [
-      "node node_modules/prettier/bin/prettier.js --write",
+      "prettier --write",
       "git add"
     ]
   }
