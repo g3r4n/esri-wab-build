@@ -12,7 +12,6 @@ exports.copy = function(pathInfo, _options) {
   setPath(pathInfo);
   options = _options || {};
   if (fs.existsSync(appOutputPath)) {
-    console.log("remove", appOutputPath);
     fse.removeSync(appOutputPath);
   }
 

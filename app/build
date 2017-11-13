@@ -14,6 +14,10 @@ const zipFolder = require('zip-folder');
 const babylon = require('babylon');
 
 let appRoot = process.cwd();
+if(process.argv.length > 2){
+  appRoot = process.argv[2];
+}
+console.log("Application root location: " + appRoot);
 
 rimraf.sync(path.join(appRoot, "build-src"));
 fs.mkdirSync(path.join(appRoot, "build-src"));
@@ -27,7 +31,7 @@ fs.copySync(path.join(appRoot, "dynamic-modules"), path.join(appRoot, "build-src
 
 const syncArgs = { cwd: path.join(appRoot, "build-src"), stdio: [0, 1, 2] };
 
-const envJsAsText = fs.readFileSync('./env.js', "utf8");
+const envJsAsText = fs.readFileSync(path.join(appRoot, "env.js"), "utf8");
 const envJs = babylon.parse(envJsAsText);
 const apiVersionIndex = envJs.tokens.findIndex(function (token) {
   if (token.value === 'apiVersion') {
@@ -38,26 +42,23 @@ const apiVersionIndex = envJs.tokens.findIndex(function (token) {
 const apiVersion = envJs.tokens[apiVersionIndex + 2].value;
 execSync("bower install esri=arcgis-js-api#" + apiVersion + " --force-latest  --config.directory=.", syncArgs);
 
-let buildOutput = appRoot + path.sep + 'buildOutput';
-let appPackages = buildOutput + path.sep + 'app-packages';
-let appOutput = buildOutput + path.sep + 'app';
+let buildOutput = path.join(appRoot, "buildOutput");
+let appPackages =path.join(buildOutput, "app-packages");
+let appOutput = path.join(buildOutput, "app");
 
 rimraf.sync(buildOutput);
 fs.mkdirSync(buildOutput);
 
 
 prepareScript.setInfo({
-  appConfigFile: process.cwd() + path.sep + "config.json"
+  appConfigFile: path.join(appRoot, "config.json"),
+  basePath:appRoot
 });
 
 prepareScript.prepare();
-console.log("Current location: " + process.cwd());
-
-
-let loadModule = "build";
 
 dojoConfig = {
-  baseUrl: path.join(process.cwd(), "build-src"), // Where we will put our packages
+  baseUrl: path.join(appRoot, "build-src"), // Where we will put our packages
   async: 1, // We want to make sure we are using the "modern" loader
   hasCache: {
     "host-node": 1, // Ensure we "force" the loader into Node.js mode
@@ -75,7 +76,7 @@ dojoConfig = {
     name: "build",
     location: path.join(appRoot, "build-src", "util/build")
   }],
-  deps: [loadModule] // And array of modules to load on "boot"
+  deps: ["build"] // And array of modules to load on "boot"
 };
 
 process.argv[2] = "load=build";
@@ -85,10 +86,13 @@ try {
   execSync("node " + path.join('dojo', 'dojo.js') + " load=build profile=app.profile.js", syncArgs);
   console.log("build finished");
 } catch (e) {
-  console.log("build always \"fails\"");
+  console.error("build failed : " + e);
 }
 
-copyScript.copy({}, {});
+copyScript.copy({
+  appPackagePath: path.join(appRoot, 'buildOutput/app-packages'),
+  appOutputPath: path.join(appRoot, 'buildOutput/app')
+}, {});
 
 utilscripts.cleanApp(path.join(appRoot, 'buildOutput/app'));
 utilscripts.cleanFilesInAppSource(appRoot);

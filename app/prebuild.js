@@ -13,29 +13,34 @@ var appConfig, appConfigFile, rProfileFile, wProfileFile, profile;
 function isTest(test, e, i, isThemeWidget, isOnscreen) {
   switch (test) {
     case "onScreenOffPanelWidget":
-      return !e.widgets &&
+      return (
+        !e.widgets &&
         e.uri &&
         e.visible !== false &&
         !isThemeWidget &&
         !widgetIsInPanel(e.uri) &&
-        isOnscreen;
+        isOnscreen
+      );
     case "themeOffPanelWidget":
-      return !e.widgets &&
+      return (
+        !e.widgets &&
         e.uri &&
         e.visible !== false &&
         isThemeWidget &&
-        !widgetIsInPanel(e.uri);
+        !widgetIsInPanel(e.uri)
+      );
     case "inPanelWidget":
-      return !e.widgets &&
+      return (
+        !e.widgets &&
         e.uri &&
         e.visible !== false &&
         !isThemeWidget &&
-        widgetIsInPanel(e.uri);
+        widgetIsInPanel(e.uri)
+      );
     case "offPanelWidget":
-      return !e.widgets &&
-        e.uri &&
-        e.visible !== false &&
-        !widgetIsInPanel(e.uri);
+      return (
+        !e.widgets && e.uri && e.visible !== false && !widgetIsInPanel(e.uri)
+      );
     case "themeWidget":
       return !e.widgets && e.uri && e.visible !== false && isThemeWidget;
     case "widget":
@@ -44,6 +49,9 @@ function isTest(test, e, i, isThemeWidget, isOnscreen) {
 }
 
 exports.setInfo = function(info) {
+  if (info.basePath) {
+    basePath = info.basePath;
+  }
   if (info.appConfigFile) {
     appConfigFile = info.appConfigFile;
   } else {
@@ -117,17 +125,19 @@ function getPreloadLayers() {
 
   layers.push(getThemeLayer());
   //all off panel widget
-  utilscripts.visitElement(
-    appConfig,
-    function(e, i, isThemeWidget, isOnscreen) {
-      if (!isTest("offPanelWidget", e, i, isThemeWidget, isOnscreen)) {
-        return;
-      }
-      var layer = {};
-      layer.name = e.uri;
-      layers.push(layer);
+  utilscripts.visitElement(appConfig, function(
+    e,
+    i,
+    isThemeWidget,
+    isOnscreen
+  ) {
+    if (!isTest("offPanelWidget", e, i, isThemeWidget, isOnscreen)) {
+      return;
     }
-  );
+    var layer = {};
+    layer.name = e.uri;
+    layers.push(layer);
+  });
   return layers;
 }
 
@@ -135,17 +145,19 @@ function getPostLoadLayers() {
   var layers = [];
 
   //all in panel widget
-  utilscripts.visitElement(
-    appConfig,
-    function(e, i, isThemeWidget, isOnscreen) {
-      if (!isTest("inPanelWidget", e, i, isThemeWidget, isOnscreen)) {
-        return;
-      }
-      var layer = {};
-      layer.name = e.uri;
-      layers.push(layer);
+  utilscripts.visitElement(appConfig, function(
+    e,
+    i,
+    isThemeWidget,
+    isOnscreen
+  ) {
+    if (!isTest("inPanelWidget", e, i, isThemeWidget, isOnscreen)) {
+      return;
     }
-  );
+    var layer = {};
+    layer.name = e.uri;
+    layers.push(layer);
+  });
   return layers;
 }
 
@@ -161,21 +173,23 @@ function getThemeLayer() {
 
 function getAllWidgetsLayers() {
   var layers = [];
-  utilscripts.visitElement(
-    appConfig,
-    function(e, i, isThemeWidget, isOnscreen) {
-      if (!isTest("widget", e, i, isThemeWidget, isOnscreen)) {
-        return;
-      }
-      var layer = {};
-      layer.name = e.uri;
-      layer.include = [
-        utilscripts.getAmdFolderFromUri(e.uri) + "/_build-generate_module"
-      ];
-      layer.exclude = ["jimu/main", "libs/main", "esri/main"];
-      layers.push(layer);
+  utilscripts.visitElement(appConfig, function(
+    e,
+    i,
+    isThemeWidget,
+    isOnscreen
+  ) {
+    if (!isTest("widget", e, i, isThemeWidget, isOnscreen)) {
+      return;
     }
-  );
+    var layer = {};
+    layer.name = e.uri;
+    layer.include = [
+      utilscripts.getAmdFolderFromUri(e.uri) + "/_build-generate_module"
+    ];
+    layer.exclude = ["jimu/main", "libs/main", "esri/main"];
+    layers.push(layer);
+  });
   return layers;
 }
 
@@ -194,15 +208,17 @@ function addBuildFiles() {
 
 /////////////////widget module
 function writeAllWidgetResourceModules() {
-  utilscripts.visitElement(
-    appConfig,
-    function(e, i, isThemeWidget, isOnscreen) {
-      if (!isTest("widget", e, i, isThemeWidget, isOnscreen)) {
-        return;
-      }
-      utilscripts.writeWidgetResourceModule(basePath, e);
+  utilscripts.visitElement(appConfig, function(
+    e,
+    i,
+    isThemeWidget,
+    isOnscreen
+  ) {
+    if (!isTest("widget", e, i, isThemeWidget, isOnscreen)) {
+      return;
     }
-  );
+    utilscripts.writeWidgetResourceModule(basePath, e);
+  });
 }
 
 //////////////////////widget manifest
@@ -219,8 +235,8 @@ function mergeAndWriteWidgetManifests() {
     var manifestFile = path.join(basePath, widgetFolder, "manifest.json");
     var manifestJson = fse.readJsonSync(manifestFile, "utf-8");
     manifestJson.location = path.join(basePath, widgetFolder);
-    manifestJson.category = 'widget';
-    if(manifestJson.featureActions){
+    manifestJson.category = "widget";
+    if (manifestJson.featureActions) {
       utilscripts.addI18NFeatureActionsLabel(manifestJson);
     }
     utilscripts.addI18NLabel(manifestJson);
